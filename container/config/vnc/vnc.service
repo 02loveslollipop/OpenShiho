@@ -1,0 +1,14 @@
+[Unit]
+Description=TigerVNC server for KDE Plasma
+After=systemd-user-sessions.service dbus.service
+Wants=dbus.service
+
+[Service]
+Type=forking
+User=shiho
+ExecStart=/usr/bin/vncserver :1 -geometry 1920x1080 -depth 24 -localhost no
+ExecStop=/usr/bin/vncserver -kill :1
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

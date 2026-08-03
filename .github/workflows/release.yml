@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Package release archive
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME}"
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE/shiho-runtime"
+          cp -r container/. "$STAGE/shiho-runtime/"
+          cp README.md "$STAGE/shiho-runtime/"
+          (cd "$STAGE" && zip -r "$GITHUB_WORKSPACE/shiho-runtime-${VERSION}.zip" shiho-runtime)
+          # Stable-named copy so releases/latest/download/shiho-runtime-latest.zip always works.
+          cp "shiho-runtime-${VERSION}.zip" shiho-runtime-latest.zip
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: shiho-runtime-*.zip
+          generate_release_notes: true

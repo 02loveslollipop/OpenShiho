@@ -1,0 +1,26 @@
+# Sample Quadlet for running shiho-runtime under podman + systemd.
+# Copy to ~/.config/containers/systemd/shiho-runtime.container
+# then: systemctl --user daemon-reload
+#        systemctl --user enable --now shiho-runtime.service
+
+[Unit]
+Description=shiho-runtime (Debian 12 KDE Plasma CTF container)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=localhost/shiho-runtime:latest
+ContainerName=shiho-runtime
+Network=bridge
+PublishPort=5901:5901
+PublishPort=2222:2222
+Memory=2g
+HostName=shiho-runtime
+AddHost=shiho-runtime:127.0.0.1
+AddDevice=/dev/net/tun
+AddCapability=NET_ADMIN NET_RAW
+SecurityLabelDisable=true
+Exec=/sbin/init
+
+[Install]
+WantedBy=default.target

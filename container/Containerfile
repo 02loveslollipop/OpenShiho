@@ -1,0 +1,134 @@
+# shiho-runtime — reproducible Debian 12 + KDE Plasma + TigerVNC + SSH container
+# for CTF / HackTheBox work. Works with both docker and podman.
+
+FROM debian:12
+
+# ---- Build-time configuration (override with --build-arg) ----
+ARG VNC_PASSWORD="vm@2026"
+ARG USER_PASSWORD="1234"
+ARG OPENCODE_VERSION="1.18.11"
+ARG FASTFETCH_VERSION="2.66.0"
+ARG R2_VERSION="6.1.8"
+
+# systemd as PID1
+ENV container=oci
+ENV DEBIAN_FRONTEND=noninteractive
+STOPSIGNAL SIGRTMIN+3
+
+# ---- Base packages ----
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    systemd systemd-sysv dbus dbus-x11 \
+    xserver-xorg xauth \
+    tigervnc-standalone-server tigervnc-common tigervnc-tools \
+    kde-plasma-desktop kde-baseapps konsole dolphin \
+    openssh-server \
+    curl wget git jq ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ---- CTF / analysis tooling ----
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openvpn nmap netcat-openbsd socat tcpdump whois traceroute dnsutils net-tools \
+    iproute2 iputils-ping htop nano file \
+    gdb gdb-multiarch binutils ltrace strace build-essential make \
+    python3 python3-pip python3-venv python3-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ---- radare2 (not packaged in Debian; build from official release source) ----
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    meson ninja-build pkg-config \
+    && curl -fSL "https://github.com/radareorg/radare2/releases/download/${R2_VERSION}/radare2-${R2_VERSION}.tar.xz" -o /tmp/r2.tar.xz \
+    && tar xJf /tmp/r2.tar.xz -C /tmp \
+    && cd "/tmp/radare2-${R2_VERSION}" \
+    && ./configure --prefix=/usr \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf /tmp/radare2-* /tmp/r2.tar.xz \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ---- fastfetch (static release binary) ----
+RUN curl -fSL "https://github.com/fastfetch-cli/fastfetch/releases/download/${FASTFETCH_VERSION}/fastfetch-linux-amd64.tar.gz" -o /tmp/ff.tar.gz \
+    && mkdir -p /tmp/ff && tar xzf /tmp/ff.tar.gz -C /tmp/ff \
+    && cp /tmp/ff/fastfetch-linux-amd64/usr/bin/fastfetch /usr/local/bin/ \
+    && cp -r /tmp/ff/fastfetch-linux-amd64/usr/lib/* /usr/local/lib/ 2>/dev/null || true \
+    && rm -rf /tmp/ff /tmp/ff.tar.gz
+
+# ---- opencode (official release binary) ----
+RUN curl -fSL "https://github.com/anomalyco/opencode/releases/download/v${OPENCODE_VERSION}/opencode-linux-x64.tar.gz" -o /tmp/oc.tar.gz \
+    && mkdir -p /tmp/oc && tar xzf /tmp/oc.tar.gz -C /tmp/oc \
+    && mv /tmp/oc/opencode /usr/local/bin/opencode \
+    && chmod 755 /usr/local/bin/opencode \
+    && rm -rf /tmp/oc /tmp/oc.tar.gz
+
+# ---- Python security libraries ----
+RUN python3 -m pip install --no-cache-dir --break-system-packages \
+    "pwntools==4.15.0" \
+    "requests==2.34.2" \
+    "pycryptodome==3.23.0" \
+    "cryptography==38.0.4" \
+    "sympy==1.14.0" \
+    "z3-solver==4.13.0.0" \
+    "angr==9.2.213" \
+    "capstone==5.0.6" \
+    "unicorn==2.1.2" \
+    "ropper==1.13.13" \
+    "pyelftools" \
+    "ROPgadget" \
+    "checksec.py" \
+    "PyYAML"
+
+# ---- User: shiho ----
+RUN useradd -m -s /bin/bash -u 1000 shiho \
+    && echo "shiho:${USER_PASSWORD}" | chpasswd
+
+# ---- Sudo (passwordless for shiho) ----
+RUN apt-get update && apt-get install -y --no-install-recommends sudo \
+    && echo "shiho ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/shiho \
+    && chmod 440 /etc/sudoers.d/shiho \
+    && printf '# Workaround for KDE bug https://bugs.kde.org/452532\nDefaults!/usr/lib/*/libexec/kf5/kdesu_stub !use_pty\n' > /etc/sudoers.d/kdesu-sudoers \
+    && chmod 440 /etc/sudoers.d/kdesu-sudoers \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ---- SSH: port 2222, password auth ----
+RUN printf 'Port 2222\nPasswordAuthentication yes\nPermitRootLogin no\n' > /etc/ssh/sshd_config.d/99-shiho-runtime.conf
+
+# ---- PATH: /usr/sbin ----
+RUN echo "export PATH=\$PATH:/usr/sbin" >> /etc/bash.bashrc
+
+# ---- VNC (KDE Plasma on :1) ----
+COPY config/vnc/xstartup /home/shiho/.vnc/xstartup
+RUN printf '%s\n' "${VNC_PASSWORD}" | /usr/bin/vncpasswd -f > /home/shiho/.vnc/passwd \
+    && chown -R shiho:shiho /home/shiho/.vnc \
+    && chmod 600 /home/shiho/.vnc/passwd \
+    && chmod 755 /home/shiho/.vnc/xstartup \
+    && mkdir -p /home/shiho/.config/fastfetch
+
+COPY config/vnc/vnc.service /etc/systemd/system/vnc.service
+RUN ln -sf /etc/systemd/system/vnc.service /etc/systemd/system/multi-user.target.wants/vnc.service
+
+# ---- SSH host keys regenerated on first boot ----
+COPY config/vnc/ssh-host-keys.service /etc/systemd/system/ssh-host-keys.service
+RUN rm -f /etc/ssh/ssh_host_* \
+    && ln -sf /etc/systemd/system/ssh-host-keys.service /etc/systemd/system/multi-user.target.wants/ssh-host-keys.service
+
+# ---- Desktop polish ----
+RUN mkdir -p /home/shiho/Pictures
+COPY config/fastfetch/config.jsonc /home/shiho/.config/fastfetch/config.jsonc
+COPY config/plasma/plasma-org.kde.plasma.desktop-appletsrc /home/shiho/.config/plasma-org.kde.plasma.desktop-appletsrc
+COPY config/wallpaper/wallpaper740.png /home/shiho/Pictures/wallpaper740.png
+RUN chown -R shiho:shiho /home/shiho
+
+# ---- Persistent knowledge base (scripts, AGENTS, LEARNINGS) ----
+COPY AGENTS.md /home/shiho/AGENTS.md
+COPY LEARNINGS.md /home/shiho/LEARNINGS.md
+COPY scripts/ /home/shiho/scripts/
+RUN mkdir -p /home/shiho/scripts/learnings \
+    && chown -R shiho:shiho /home/shiho/scripts /home/shiho/AGENTS.md /home/shiho/LEARNINGS.md
+
+# ---- htb-connect helper ----
+COPY scripts/htb-connect /usr/local/bin/htb-connect
+RUN chmod 755 /usr/local/bin/htb-connect
+
+# ---- OpenVPN profiles (optional; injected by build.sh from ovpn/) ----
+COPY ovpn/ /home/shiho/
+
+CMD ["/sbin/init"]

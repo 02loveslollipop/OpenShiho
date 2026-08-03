@@ -1,0 +1,12 @@
+# OpenVPN profiles — never commit these
+container/ovpn/*.ovpn
+!container/ovpn/example.ovpn.template
+
+# Build staging / local state
+.build-context/
+*.log
+
+# Editor / OS noise
+.DS_Store
+__pycache__/
+*.pyc

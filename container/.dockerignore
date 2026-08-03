@@ -1,0 +1,6 @@
+# Keep the build context small
+.git/
+.build-context/
+ovpn/*.ovpn
+!ovpn/example.ovpn.template
+*.log

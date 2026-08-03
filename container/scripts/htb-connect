@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RELEASE_PROFILE="$HOME/release.ovpn"
+MACHINES_PROFILE="$HOME/machines2.ovpn"
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/htb-vpn"
+PIDFILE="$STATE_DIR/current.pid"
+CURRENT="$STATE_DIR/current.conf"
+
+mkdir -p "$STATE_DIR"
+
+usage() {
+    cat <<EOF
+Usage: htb-connect [OPTION]
+
+Connect to an HTB OpenVPN server (runs in background, persists across terminal restarts).
+
+Options:
+  -r, --release-arena   Connect to the Release Arena (release.ovpn)
+  -m, --machines        Connect to the Machines network (machines2.ovpn)
+  -s, --status          Show current VPN connection status
+  -h, --help            Show this help
+
+Without any option:
+  If a VPN is connected, it will be disconnected.
+  Otherwise, you will be prompted to choose which one to connect to.
+
+Switching (-r/-m) while connected to the other will change the VPN automatically.
+EOF
+}
+
+vpn_running() {
+    [ -f "$PIDFILE" ] && [ -n "$(cat "$PIDFILE" 2>/dev/null)" ] && [ -d "/proc/$(cat "$PIDFILE" 2>/dev/null)" ]
+}
+
+current_conf() {
+    if vpn_running && [ -f "$CURRENT" ]; then
+        cat "$CURRENT"
+    else
+        echo ""
+    fi
+}
+
+stop_vpn() {
+    if vpn_running; then
+        local pid conf
+        pid="$(cat "$PIDFILE")"
+        conf="$(current_conf)"
+        echo "Disconnecting VPN ($conf)..."
+        sudo kill "$pid" 2>/dev/null || true
+        for _ in $(seq 1 20); do
+            vpn_running || break
+            sleep 0.5
+        done
+        if vpn_running; then
+            sudo kill -9 "$pid" 2>/dev/null || true
+            sleep 1
+        fi
+        rm -f "$PIDFILE" "$CURRENT"
+        echo "VPN disconnected."
+    fi
+}
+
+start_vpn() {
+    local profile="$1" name="$2"
+    stop_vpn
+    echo "Connecting to $name..."
+    sudo openvpn --daemon --config "$profile" --writepid "$PIDFILE" --log "$STATE_DIR/openvpn.log"
+    for _ in $(seq 1 20); do
+        vpn_running && break
+        sleep 0.5
+    done
+    if vpn_running; then
+        echo "$profile" > "$CURRENT"
+        echo "Connected to $name (pid $(cat "$PIDFILE"))."
+    else
+        echo "ERROR: OpenVPN failed to start. Check $STATE_DIR/openvpn.log"
+        exit 1
+    fi
+}
+
+status() {
+    if vpn_running; then
+        echo "Connected: $(basename "$(current_conf)") (pid $(cat "$PIDFILE"))"
+    else
+        echo "Not connected."
+    fi
+}
+
+[ $# -gt 0 ] || {
+    if vpn_running; then
+        stop_vpn
+        exit 0
+    fi
+    echo "Which network do you want to connect to?"
+    echo "  1) Release Arena"
+    echo "  2) Machines"
+    printf "Choice [1/2]: "
+    read -r choice
+    case "$choice" in
+        1|r|R) start_vpn "$RELEASE_PROFILE" "Release Arena" ;;
+        2|m|M) start_vpn "$MACHINES_PROFILE" "Machines" ;;
+        *) echo "Invalid choice."; exit 1 ;;
+    esac
+    exit 0
+}
+
+case "$1" in
+    -r|--release-arena)
+        [ -f "$RELEASE_PROFILE" ] || { echo "Profile not found: $RELEASE_PROFILE"; exit 1; }
+        start_vpn "$RELEASE_PROFILE" "Release Arena"
+        ;;
+    -m|--machines)
+        [ -f "$MACHINES_PROFILE" ] || { echo "Profile not found: $MACHINES_PROFILE"; exit 1; }
+        start_vpn "$MACHINES_PROFILE" "Machines"
+        ;;
+    -s|--status)
+        status
+        ;;
+    -h|--help)
+        usage
+        ;;
+    *)
+        echo "Unknown option: $1"
+        usage
+        exit 1
+        ;;
+esac

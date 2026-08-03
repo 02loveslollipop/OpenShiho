@@ -1,0 +1,23 @@
+{
+  "$schema": "https://github.com",
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "host",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "terminal",
+    {
+      "type": "cpu",
+      "key": "CPU",
+      "format": "{cores-logical} cores @ {freq-max}"
+    },
+    "memory",
+    "swap",
+    "disk",
+    "localip"
+  ]
+}
