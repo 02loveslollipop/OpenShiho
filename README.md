@@ -1,6 +1,6 @@
 # OpenShiho
 
-An agentic CTF / HackTheBox runtime. OpenShiho packages
+An agentic HackTheBox runtime. OpenShiho packages
 [opencode](https://opencode.ai) as the operating agent inside a reproducible
 Debian 12 + KDE Plasma + TigerVNC + SSH container, and ships it prepackaged
 with [OpenCROW](https://github.com/02loveslollipop/OpenCROW)'s toolbox and
