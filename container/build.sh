@@ -33,7 +33,7 @@ detect_runtime
 echo "==> Using runtime: $RUNTIME"
 
 # Stage everything the Containerfile needs.
-cp -r Containerfile AGENTS.md LEARNINGS.md config scripts "$STAGE/"
+cp -r Containerfile AGENTS.md LEARNINGS.md config scripts skills "$STAGE/"
 
 # Inject OpenVPN profiles if the user dropped any into ./ovpn/
 mkdir -p "$STAGE/ovpn"

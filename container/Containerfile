@@ -124,6 +124,10 @@ COPY scripts/ /home/shiho/scripts/
 RUN mkdir -p /home/shiho/scripts/learnings \
     && chown -R shiho:shiho /home/shiho/scripts /home/shiho/AGENTS.md /home/shiho/LEARNINGS.md
 
+# ---- OpenCROW skills (opencode) ----
+COPY skills/ /home/shiho/.config/opencode/skills/
+RUN chown -R shiho:shiho /home/shiho/.config/opencode
+
 # ---- htb-connect helper ----
 COPY scripts/htb-connect /usr/local/bin/htb-connect
 RUN chmod 755 /usr/local/bin/htb-connect
