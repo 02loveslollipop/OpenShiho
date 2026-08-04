@@ -24,7 +24,8 @@ history with paths already rebased to the top level. That branch is what
 OpenShiho's subtree points at.
 
 Only skills classified as a toolbox (`opencrow-*-toolbox`) or an I/O
-connector (`minecraft-async`, `netcat-async`, `ssh-async`) are kept, plus
+connector (`minecraft-async`, `netcat-async`, `reverse-shell-async`,
+`ssh-async`) are kept, plus
 `_shared` (the Python runtime helper several toolbox scripts import).
 Anything else OpenCROW ships under `skills/` — currently just `sagemath`,
 classified as a "Runner" rather than a toolbox or connector — is removed

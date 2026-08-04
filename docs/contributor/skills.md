@@ -8,7 +8,8 @@ directory, scoped to toolboxes and I/O connectors only. See
 ## What's in scope
 
 - `opencrow-*-toolbox` — the toolbox skills.
-- `minecraft-async`, `netcat-async`, `ssh-async` — the async I/O connectors.
+- `minecraft-async`, `netcat-async`, `reverse-shell-async`, `ssh-async` — the
+  async I/O connectors.
 - `_shared` — the Python runtime helper toolbox scripts import; not a skill
   itself, but required by ones that are kept.
 
