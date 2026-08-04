@@ -3,10 +3,14 @@
 shiho-runtime is separated by what ships versus what only supports the repo.
 
 `container/` is self-contained and is exactly what a release zip contains:
-`Containerfile`, `build.sh`, `run.sh`, `config/`, `scripts/`, `ovpn/`,
-`quadlet/`, and the in-container knowledge base (`AGENTS.md`,
+`Containerfile`, `build.sh`, `run.sh`, `config/`, `scripts/`, `skills/`,
+`ovpn/`, `quadlet/`, and the in-container knowledge base (`AGENTS.md`,
 `LEARNINGS.md`). Nothing in `container/` depends on paths outside itself, so
 it can be copied out of the repo and still build and run.
+
+`container/skills/` is a `git subtree` of OpenCROW's skill toolboxes and I/O
+connectors, installed into opencode's global skills directory at build time
+— see [Skills](skills.md) and [ADR 0002](../adr/0002-skills-via-subtree.md).
 
 The repo root holds only documentation and CI (`README.md`, `docs/`,
 `.github/workflows/`). See [ADR 0001](../adr/0001-container-directory-split.md)

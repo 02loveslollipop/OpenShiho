@@ -13,5 +13,6 @@ in more depth.
 ## Contributors
 
 - [Architecture](contributor/architecture.md)
+- [Skills](contributor/skills.md)
 - [Releases](contributor/releases.md)
 - [ADRs](adr/)
