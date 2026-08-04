@@ -11,7 +11,7 @@ TAG=mytag RUNTIME=docker ./build.sh
 VNC_PASSWORD=secret ./build.sh
 ```
 
-The image is tagged `shiho-runtime:latest` by default. `build.sh` stages
+The image is tagged `openshiho:latest` by default. `build.sh` stages
 `Containerfile`, `AGENTS.md`, `LEARNINGS.md`, `config/`, and `scripts/` into a
 temporary build context so the Containerfile only ever sees what it needs.
 
@@ -50,24 +50,24 @@ RUNTIME=docker ./run.sh
 ### Manual run (podman)
 
 ```sh
-podman rm -f shiho-runtime 2>/dev/null
-podman run -d --name shiho-runtime --hostname shiho-runtime \
+podman rm -f openshiho 2>/dev/null
+podman run -d --name openshiho --hostname openshiho \
     -p 5901:5901 -p 2222:2222 \
     --device /dev/net/tun --cap-add NET_ADMIN --cap-add NET_RAW \
-    --memory 2g shiho-runtime:latest /sbin/init
+    --memory 2g openshiho:latest /sbin/init
 ```
 
 ### Manual run (docker)
 
 ```sh
-docker rm -f shiho-runtime 2>/dev/null
-docker run -d --name shiho-runtime --hostname shiho-runtime \
+docker rm -f openshiho 2>/dev/null
+docker run -d --name openshiho --hostname openshiho \
     -p 5901:5901 -p 2222:2222 \
     --device /dev/net/tun --cap-add NET_ADMIN --cap-add NET_RAW \
     --memory 2g \
     --tmpfs /tmp --tmpfs /run \
     -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
-    shiho-runtime:latest /sbin/init
+    openshiho:latest /sbin/init
 ```
 
 ## systemd / Quadlet (podman)
@@ -77,9 +77,9 @@ unit is in `container/quadlet/`:
 
 ```sh
 mkdir -p ~/.config/containers/systemd
-cp container/quadlet/shiho-runtime.container ~/.config/containers/systemd/
+cp container/quadlet/openshiho.container ~/.config/containers/systemd/
 systemctl --user daemon-reload
-systemctl --user enable --now shiho-runtime.service
+systemctl --user enable --now openshiho.service
 ```
 
 If you use Quadlet with SELinux enforcing, see

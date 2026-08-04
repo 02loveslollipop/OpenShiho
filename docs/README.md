@@ -1,4 +1,4 @@
-# shiho-runtime documentation
+# OpenShiho documentation
 
 Repository Markdown is the authoritative source. The root `README.md` is a
 short entry point; the pages below cover setup, operation, and contribution

@@ -3,11 +3,11 @@ SHELL := /bin/bash
 .PHONY: help build run smoke clean
 
 help:
-	@echo "shiho-runtime targets:"
+	@echo "OpenShiho targets:"
 	@echo "  make build   Build the container image (auto-detects docker/podman)"
 	@echo "  make run     Run the container (builds first if the image is missing)"
 	@echo "  make smoke   Validate shell/python syntax and workflow YAML"
-	@echo "  make clean   Remove the local shiho-runtime:latest image"
+	@echo "  make clean   Remove the local openshiho:latest image"
 
 build:
 	cd container && ./build.sh
@@ -25,5 +25,5 @@ smoke:
 
 clean:
 	@RUNTIME=$${RUNTIME:-$$(command -v podman >/dev/null 2>&1 && echo podman || echo docker)}; \
-	echo "==> Removing shiho-runtime:latest via $$RUNTIME"; \
-	$$RUNTIME rmi shiho-runtime:latest 2>/dev/null || true
+	echo "==> Removing openshiho:latest via $$RUNTIME"; \
+	$$RUNTIME rmi openshiho:latest 2>/dev/null || true

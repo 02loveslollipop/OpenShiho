@@ -21,7 +21,7 @@ bring in just OpenCROW's `skills/` tree, OpenCROW carries a maintained
 branch, `skills-subtree/release`, produced by
 `git subtree split --prefix=skills`, containing only that subdirectory's
 history with paths already rebased to the top level. That branch is what
-shiho-runtime's subtree points at.
+OpenShiho's subtree points at.
 
 Only skills classified as a toolbox (`opencrow-*-toolbox`) or an I/O
 connector (`minecraft-async`, `netcat-async`, `ssh-async`) are kept, plus

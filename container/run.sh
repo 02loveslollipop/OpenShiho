@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shiho-runtime run helper. Starts the container with VNC (5901), SSH (2222),
+# OpenShiho run helper. Starts the container with VNC (5901), SSH (2222),
 # /dev/net/tun passthrough, and NET_ADMIN/NET_RAW capabilities so OpenVPN works.
 # Builds the image first if it doesn't exist yet, so a fresh checkout (or a
 # downloaded release archive) can be started with just ./run.sh.
@@ -10,8 +10,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 RUNTIME="${RUNTIME:-}"
-TAG="${TAG:-shiho-runtime:latest}"
-NAME="${NAME:-shiho-runtime}"
+TAG="${TAG:-openshiho:latest}"
+NAME="${NAME:-openshiho}"
 
 detect_runtime() {
     if [ -n "$RUNTIME" ]; then
@@ -37,7 +37,7 @@ fi
 
 COMMON=(
     --name "$NAME"
-    --hostname shiho-runtime
+    --hostname openshiho
     -p 5901:5901
     -p 2222:2222
     --device /dev/net/tun

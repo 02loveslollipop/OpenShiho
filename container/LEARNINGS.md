@@ -1,6 +1,6 @@
 # LEARNINGS
 
-Lessons learned while working in the shiho-runtime container.
+Lessons learned while working in the OpenShiho container.
 
 Format: `YYYY-MM-DD | topic | lesson`
 

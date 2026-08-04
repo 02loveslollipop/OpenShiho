@@ -1,5 +1,5 @@
-# shiho-runtime — reproducible Debian 12 + KDE Plasma + TigerVNC + SSH container
-# for CTF / HackTheBox work. Works with both docker and podman.
+# OpenShiho — reproducible Debian 12 + KDE Plasma + TigerVNC + SSH agentic CTF
+# runtime. Works with both docker and podman.
 
 FROM debian:12
 
@@ -89,7 +89,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends sudo \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ---- SSH: port 2222, password auth ----
-RUN printf 'Port 2222\nPasswordAuthentication yes\nPermitRootLogin no\n' > /etc/ssh/sshd_config.d/99-shiho-runtime.conf
+RUN printf 'Port 2222\nPasswordAuthentication yes\nPermitRootLogin no\n' > /etc/ssh/sshd_config.d/99-openshiho.conf
 
 # ---- PATH: /usr/sbin ----
 RUN echo "export PATH=\$PATH:/usr/sbin" >> /etc/bash.bashrc

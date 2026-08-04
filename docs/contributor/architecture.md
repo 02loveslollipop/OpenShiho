@@ -1,6 +1,6 @@
 # Architecture
 
-shiho-runtime is separated by what ships versus what only supports the repo.
+OpenShiho is separated by what ships versus what only supports the repo.
 
 `container/` is self-contained and is exactly what a release zip contains:
 `Containerfile`, `build.sh`, `run.sh`, `config/`, `scripts/`, `skills/`,

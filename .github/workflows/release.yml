@@ -19,15 +19,15 @@ jobs:
           set -euo pipefail
           VERSION="${GITHUB_REF_NAME}"
           STAGE="$(mktemp -d)"
-          mkdir -p "$STAGE/shiho-runtime"
-          cp -r container/. "$STAGE/shiho-runtime/"
-          cp README.md "$STAGE/shiho-runtime/"
-          (cd "$STAGE" && zip -r "$GITHUB_WORKSPACE/shiho-runtime-${VERSION}.zip" shiho-runtime)
-          # Stable-named copy so releases/latest/download/shiho-runtime-latest.zip always works.
-          cp "shiho-runtime-${VERSION}.zip" shiho-runtime-latest.zip
+          mkdir -p "$STAGE/openshiho"
+          cp -r container/. "$STAGE/openshiho/"
+          cp README.md "$STAGE/openshiho/"
+          (cd "$STAGE" && zip -r "$GITHUB_WORKSPACE/openshiho-${VERSION}.zip" openshiho)
+          # Stable-named copy so releases/latest/download/openshiho-latest.zip always works.
+          cp "openshiho-${VERSION}.zip" openshiho-latest.zip
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: shiho-runtime-*.zip
+          files: openshiho-*.zip
           generate_release_notes: true

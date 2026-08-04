@@ -10,9 +10,9 @@ git push origin v1.0.0
 Pushing a tag matching `v*.*.*` triggers
 `.github/workflows/release.yml`, which:
 
-1. Copies `container/` plus the root `README.md` into a `shiho-runtime/`
+1. Copies `container/` plus the root `README.md` into an `openshiho/`
    staging directory.
-2. Zips it as `shiho-runtime-<tag>.zip`.
+2. Zips it as `openshiho-<tag>.zip`.
 3. Publishes it to the repository's GitHub Release for that tag, with
    auto-generated release notes.
 

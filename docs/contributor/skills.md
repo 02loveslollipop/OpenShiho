@@ -20,7 +20,7 @@ an OpenCROW "Runner") is pruned after every pull.
 OpenCROW doesn't publish a ready-made subtree branch by default, so the
 split has to be (re)created there first, then pulled here.
 
-**In a checkout of OpenCROW**, on the branch shiho-runtime tracks
+**In a checkout of OpenCROW**, on the branch OpenShiho tracks
 (`release`):
 
 ```sh
@@ -30,7 +30,7 @@ git subtree split --prefix=skills -b skills-subtree/release release
 git push origin skills-subtree/release --force
 ```
 
-**In shiho-runtime**:
+**In OpenShiho**:
 
 ```sh
 git subtree pull --prefix=container/skills \

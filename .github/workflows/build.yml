@@ -26,13 +26,13 @@ jobs:
       - name: Build image (${{ matrix.runtime }})
         working-directory: container
         run: |
-          RUNTIME=${{ matrix.runtime }} TAG=shiho-runtime:ci ./build.sh
+          RUNTIME=${{ matrix.runtime }} TAG=openshiho:ci ./build.sh
 
       - name: Verify image exists
         working-directory: container
         run: |
           if [ "${{ matrix.runtime }}" = "podman" ]; then
-            podman image inspect shiho-runtime:ci >/dev/null
+            podman image inspect openshiho:ci >/dev/null
           else
-            docker image inspect shiho-runtime:ci >/dev/null
+            docker image inspect openshiho:ci >/dev/null
           fi

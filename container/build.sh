@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shiho-runtime build helper. Stages the build context so OpenVPN profiles placed in
+# OpenShiho build helper. Stages the build context so OpenVPN profiles placed in
 # ./ovpn/ (gitignored) are injected into the image without being committed.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 RUNTIME="${RUNTIME:-}"      # auto-detect if unset: podman, else docker
-TAG="${TAG:-shiho-runtime:latest}"
+TAG="${TAG:-openshiho:latest}"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 

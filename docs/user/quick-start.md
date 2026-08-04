@@ -6,8 +6,8 @@ Download the latest zip from the [Releases page](../../../../releases),
 unzip it, and run:
 
 ```sh
-unzip shiho-runtime-*.zip
-cd shiho-runtime
+unzip openshiho-*.zip
+cd openshiho
 ./run.sh
 ```
 
@@ -17,8 +17,8 @@ locally yet, then starts the container. No separate build step is required.
 ## From a source checkout
 
 ```sh
-git clone git@github.com:02loveslollipop/shiho-runtime.git
-cd shiho-runtime/container
+git clone git@github.com:02loveslollipop/OpenShiho.git
+cd OpenShiho/container
 ./run.sh
 ```
 
